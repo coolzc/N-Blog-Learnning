@@ -11,6 +11,7 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var settings = require('./settings');
 var flash = require('connect-flash');
+
 var app = express();
 
 // view engine setup

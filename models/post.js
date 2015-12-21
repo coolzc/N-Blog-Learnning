@@ -14,8 +14,8 @@ Post.prototype.save = function(callback) {
         date : date,
         year : date.getFullYear(),
         month : date.getFullYear() + "-" + (date.getMonth() + 1),
-        day : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDay(),
-        minute : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDay() + "-" + date.getHours() + ":" + (date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes())
+        day : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
+        minute : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + (date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes())
     }
 
     var post = {
@@ -45,7 +45,7 @@ Post.prototype.save = function(callback) {
     });
 }
 
-Post.get = function(name, callback) {
+Post.getAll = function(name, callback) {
     mongodb.open(function(err,db) {
         if(err) {
             callback(err);
@@ -68,6 +68,32 @@ Post.get = function(name, callback) {
                     doc.post = markdown.toHTML(doc.post);
                 });
                 callback(null, docs);
+            });
+        });
+    });
+}
+
+Post.getOne = function(name, day, title, callback) {
+    mongodb.open(function(err, db) {
+        if(err) {
+            return callback(err);
+        }
+        db.collection('posts', function(err, collection) {
+            if(err) {
+                mongodb.close();
+                return callback(err);
+            }
+            collection.findOne({
+                "name" : name,
+                "time.day" : day,
+                "title" : title
+            }, function(err, doc) {
+                mongodb.close();
+                if(err) {
+                    return callback(err);
+                }
+                doc.post = markdown.toHTML(doc.post);
+                callback(null, doc);
             });
         });
     });
