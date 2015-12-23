@@ -1,4 +1,5 @@
-var mongodb = require('./db');
+var mongodb = require('mongodb').MongoClient;
+var settings = require('../settings');
 
 function Comment(name, day, title, comment) {
     this.name = name;
@@ -14,15 +15,11 @@ Comment.prototype.save = function (callback) {
         day = this.day,
         title = this.title,
         comment = this.comment;
-    mongodb.open(function(err, db) {
+    mongodb.connect(settings.url, function(err, db) {
         if(err) {
             return callback(err);
         }
-        db.collection('posts', function(err, collection) {
-            if(err) {
-                mongodb.close();
-                return callback(err);
-            }
+        var collection = db.collection('posts');
             collection.update({
                 "name" : name,
                 "time.day" : day,
@@ -30,12 +27,11 @@ Comment.prototype.save = function (callback) {
             }, {
                 $push : {"comments" : comment}
             }, function(err) {
-                mongodb.close();
+                db.close();
                 if(err) {
                     return callback(err);
                 }
                 callback(null);
             });
         });
-    });
 }
