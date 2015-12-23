@@ -30,14 +30,12 @@ User.prototype.save = function(callback) {
     //读取 users 集合
     var collection = db.collection('users');
       //将用户数据插入 users 集合
-      collection.insert(user, {
-        safe: true
-      }, function (err, user) {
+      collection.insert(user,function (err, user) {
         db.close();
         if (err) {
           return callback(err);//错误，返回 err 信息
         }
-        callback(null, user.ops[0]);//成功！err 为 null，并返回存储后的用户文档
+        callback(null, user[0]);//成功！err 为 null，并返回存储后的用户文档
       });
     });
 };
