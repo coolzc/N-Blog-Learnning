@@ -259,7 +259,7 @@ module.exports = function(app) {
   });
 
 
-  app.get('/p/:id', function(req, res) {
+  app.get('/p/:_id', function(req, res) {
       Post.getOne(req.params._id, function(err, post) {
           if(err) {
               req.flash('error', err);
@@ -275,7 +275,7 @@ module.exports = function(app) {
       });
   });
 
-  app.post('/u/:name/:day/:title', function(req, res) {
+  app.post('/c/:_id', function(req, res) {
      var date = new Date(),
          time = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
      var md5 = crypto.createHash('md5'),
@@ -289,7 +289,7 @@ module.exports = function(app) {
          time : time,
          content : req.body.content
      }
-     var newComment = new Comment(req.params.name, req.params.day, req.params.title, comment);
+     var newComment = new Comment(req.params._id, comment);
      newComment.save(function(err) {
          if(err) {
              req.flash('error', err);
@@ -300,10 +300,9 @@ module.exports = function(app) {
      });
   });
 
-  app.get('/edit/:name/:day/:title', checkLogin);
-  app.get('/edit/:name/:day/:title', function(req, res) {
-      var currentUser = req.session.user;
-      Post.edit(currentUser.name, req.params.day, req.params.title, function(err, post) {
+  app.get('/e/:_id', checkLogin);
+  app.get('/e/:_id', function(req, res) {
+      Post.edit(req.params._id, function(err, post) {
           if(err) {
               req.flash('error', err);
               return res.redirect('back');
@@ -318,10 +317,10 @@ module.exports = function(app) {
       });
   });
 
-  app.post('/edit/:name/:day/:title', checkLogin);
-  app.post('/edit/:name/:day/:title', function(req, res) {
+  app.post('/e/:_id', checkLogin);
+  app.post('/e/:_id', function(req, res) {
       var currentUser = req.session.user;
-      Post.update(currentUser.name, req.params.day, req.params.title, req.body.post, function(err) {
+      Post.update(req.params._id, req.body.post, function(err) {
           var url = encodeURI('/u/' + req.params.name + '/' + req.params.day + '/' + req.params.title);
           if(err) {
               req.flash('error', err);
@@ -332,10 +331,9 @@ module.exports = function(app) {
       });
   });
 
- app.get('/remove/:name/:day/:title', checkLogin);
- app.get('/remove/:name/:day/:title', function(req, res) {
-      var currentUser = req.session.user;
-      Post.remove(currentUser.name, req.params.day, req.params.title, function(err) {
+ app.get('/remove/:_id', checkLogin);
+ app.get('/remove/:_id', function(req, res) {
+      Post.remove(req.params._id, function(err) {
           if(err) {
               req.flash('error', err);
               return res.redirect('back');
@@ -345,9 +343,9 @@ module.exports = function(app) {
       });
   });
 
- app.get('/reprint/:name/:day/:title', checkLogin);
- app.get('/reprint/:name/:day/:title', function(req, res) {
-     Post.edit(req.params.name, req.params.day, req.params.title, function(err, post) {
+ app.get('/reprint/:_id', checkLogin);
+ app.get('/reprint/:_id', function(req, res) {
+     Post.edit(req.params._id, function(err, post) {
          if(err) {
              req.flash('error', err);
              return res.redirect(back);
@@ -355,7 +353,7 @@ module.exports = function(app) {
          var currentUser = req.session.user,
              reprint_from = {name : post.name, day : post.time.day, title : post.title};
              reprint_to = {name : currentUser.name, head : currentUser.head}
-         Post.reprint(reprint_from, reprint_to, function(err, post) {
+         Post.reprint(req.params._id, reprint_to, function(err, post) {
            if(err) {
                req.flash('error', err);
                return res.redirect('back');
@@ -386,6 +384,6 @@ module.exports = function(app) {
       res.redirect('back');
     }
     next();
-}
+ }
 
 };

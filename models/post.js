@@ -1,7 +1,7 @@
 var mongodb = require('mongodb').MongoClient;
 var markdown = require('markdown').markdown;
 var settings = require('../settings');
-var ObjectId = require('mongodb').ObjectID;
+var ObjectID = require('mongodb').ObjectID;
 
 function Post(name, head, title, tags, post) {
     this.name = name;
@@ -93,9 +93,7 @@ Post.getOne = function(_id, callback) {
                 }
                 if (doc) {
                     collection.update({
-                        "name" : name,
-                        "time.day" : day,
-                        "title" : title
+                        "_id" : new ObjectID(_id)
                     }, {
                         $inc : {"pv" : 1}
                     }, function(err) {
@@ -114,16 +112,14 @@ Post.getOne = function(_id, callback) {
         });
 };
 
-Post.edit = function(name, day, title, callback) {
+Post.edit = function(_id, callback) {
     mongodb.connect(settings.url, function(err, db) {
         if(err) {
             return callback(err);
         }
         var collection = db.collection('posts');
             collection.findOne({
-                "name" : name,
-                "time.day" : day,
-                "title" : title
+                "_id" : new ObjectID(_id)
             }, function(err, doc) {
                 db.close();
                 if(err) {
@@ -134,16 +130,14 @@ Post.edit = function(name, day, title, callback) {
         });
     };
 
-Post.update = function(name, day, title, post, callback) {
+Post.update = function(_id, post, callback) {
     mongodb.connect(settings.url, function(err, db) {
         if(err) {
             return callback(err);
         }
         var collection = db.collection('posts');
             collection.update({
-                "name" : name,
-                "time.day" : day,
-                "title" : title
+                "_id" : ObjectID(_id)
             }, {
                 $set : {post : post}
             }, function(err) {
@@ -156,16 +150,14 @@ Post.update = function(name, day, title, post, callback) {
         });
 }
 
-Post.remove = function(name, day, title, callback) {
+Post.remove = function(_id, callback) {
     mongodb.connect(settings.url, function(err, db) {
         if(err) {
             return callback();
         }
         var collection = db.collection('posts');
             collection.find({
-                "name" : name,
-                "time.day" : day,
-                "title" : title
+                "_id" : ObjectID(_id)
             }, function(err, doc) {
                 if(err) {
                     db.close();
@@ -177,9 +169,7 @@ Post.remove = function(name, day, title, callback) {
                 }
                 if(reprint_from != "") {
                     collection.update({
-                        "name" : reprint_from.name,
-                        "day" : reprint_from.day,
-                        "title" : reprint_from.title
+                        "_id" : ObjectID(_id)
                     }, {
                         $pull : {
                             "reprint_info.reprint_to" : {
@@ -196,9 +186,7 @@ Post.remove = function(name, day, title, callback) {
                 }
 
                 collection.remove({
-                    "name" : name,
-                    "time.day" : day,
-                    "title" : title
+                    "_id" : ObjectID(_id)
                 }, {
                     w : 1
                 }, function(err) {
@@ -296,16 +284,14 @@ Post.search = function(keyword, callback) {
 }
 
 
-Post.reprint = function(reprint_from, reprint_to, callback) {
+Post.reprint = function(_id, reprint_to, callback) {
     mongodb.connect(settings.url, function(err, db) {
         if(err) {
             return callback(err);
         }
         var collection = db.collection('posts');
             collection.findOne({
-                "name" : reprint_from.name,
-                "time.day" : reprint_from.day,
-                "title" : reprint_from.title
+                "_id" : ObjectID(_id)
             }, function(err, doc) {
                 if(err) {
                     db.close();
@@ -331,9 +317,7 @@ Post.reprint = function(reprint_from, reprint_to, callback) {
                 doc.pv = 0;
 
                 collection.update({
-                    "name" : reprint_from.name,
-                    "time.day" : reprint_from.day,
-                    "title" : reprint_from.title
+                    "_id" : ObjectID(_id)
                 }, {
                     $push : {
                        "reprint_info.reprint_to" : {
