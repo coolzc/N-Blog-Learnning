@@ -1,6 +1,7 @@
 var mongodb = require('mongodb').MongoClient;
 var markdown = require('markdown').markdown;
 var settings = require('../settings');
+var ObjectId = require('mongodb').ObjectID;
 
 function Post(name, head, title, tags, post) {
     this.name = name;
@@ -77,16 +78,14 @@ Post.getTen = function(name, page, callback) {
         });
 }
 
-Post.getOne = function(name, day, title, callback) {
+Post.getOne = function(_id, callback) {
     mongodb.connect(settings.url, function(err, db) {
         if(err) {
             return callback(err);
         }
         var collection = db.collection('posts');
             collection.findOne({
-                "name" : name,
-                "time.day" : day,
-                "title" : title
+                "_id" : new ObjectID(_id)
             }, function(err, doc) {
                 if(err) {
                     db.close();
