@@ -1,5 +1,5 @@
 ## N-Blog-Learnning
-本分支是dev 分支,作为本地调试的分支,最终将master的mongodb服务器放在远端
+将master的mongodb服务器放在远端
 
 
 
