@@ -225,7 +225,7 @@ Post.getTag = function(tag, callback) {
         if(err) {
             return callback(err);
         }
-        var collection = db.collection('tags');
+        var collection = db.collection('posts');
             collection.find({
                 "tags" : tag
             }, {

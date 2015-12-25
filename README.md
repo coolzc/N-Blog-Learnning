@@ -1,6 +1,5 @@
 ## N-Blog-Learnning
-本分支是prod分支,目前将mongodb服务器放在远端,是最终可访问的版本
-
+本分支是dev 分支,作为本地调试的分支,最终将master的mongodb服务器放在远端
 
 
 

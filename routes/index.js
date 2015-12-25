@@ -248,6 +248,11 @@ module.exports = function(app) {
               req.flash('error', err);
               return res.redirect('/');
           }
+          console.log("this page posts:" + posts);
+          console.log("this page tag:" + req.params.tag);
+          posts.forEach(function(post,index) {
+            console.log("tag:" + index + post.tag);
+          })
           res.render('tag', {
               title : 'TAG:' + req.params.tag,
               posts : posts,
