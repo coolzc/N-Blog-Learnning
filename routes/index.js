@@ -321,7 +321,7 @@ module.exports = function(app) {
   app.post('/e/:_id', function(req, res) {
       var currentUser = req.session.user;
       Post.update(req.params._id, req.body.post, function(err) {
-          var url = encodeURI('/u/' + req.params.name + '/' + req.params.day + '/' + req.params.title);
+          var url = encodeURI('/p/' + req.params._id);
           if(err) {
               req.flash('error', err);
               return res.redirect(url);
@@ -351,15 +351,14 @@ module.exports = function(app) {
              return res.redirect(back);
          }
          var currentUser = req.session.user,
-             reprint_from = {name : post.name, day : post.time.day, title : post.title};
-             reprint_to = {name : currentUser.name, head : currentUser.head}
+             reprint_to = {name : currentUser.name, head : currentUser.head};
          Post.reprint(req.params._id, reprint_to, function(err, post) {
            if(err) {
                req.flash('error', err);
                return res.redirect('back');
            }
            req.flash('success', '转载成功!');
-           var url = encodeURI('/u/' + post.name + '/' + post.time.day + '/' + post.title);
+           var url = encodeURI('/u/' + post._id);
            res.redirect(url);
          });
      });

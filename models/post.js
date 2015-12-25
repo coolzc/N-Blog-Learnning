@@ -308,12 +308,16 @@ Post.reprint = function(_id, reprint_to, callback) {
                 }
 
                 delete doc._id;
+                doc.reprint_info = {"reprint_from" : {
+                    name : doc.name,
+                    day : doc.time.day,
+                    title : doc.title
+                }};
                 doc.name = reprint_to.name;
                 doc.head = reprint_to.head;
                 doc.time = time;
                 doc.title = (doc.title.search(/[转载]/) > -1) ? doc.title : "[转载]" + doc.title;
                 doc.comments = [];
-                doc.reprint_info = {"reprint_from" : reprint_from};
                 doc.pv = 0;
 
                 collection.update({
