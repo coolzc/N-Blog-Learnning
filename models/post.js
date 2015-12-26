@@ -2,6 +2,7 @@ var mongodb = require('mongodb').MongoClient;
 var markdown = require('markdown').markdown;
 var settings = require('../settings');
 var ObjectID = require('mongodb').ObjectID;
+var async = require('async');
 
 function Post(name, head, title, tags, post) {
     this.name = name;
@@ -51,31 +52,66 @@ Post.prototype.save = function(callback) {
 }
 
 Post.getTen = function(name, page, callback) {
-    mongodb.connect(settings.url, function(err, db) {
-        if(err) {
-           return callback(err);
-        }
-        var collection = db.collection('posts');
+
+    async.waterfall([
+        function(cb) {
+            mongodb.connect(settings.url, function(err, db) {
+                cb(err, db);
+            });
+        },
+        function(db, cb) {
             var query = {};
             if(name) {
                 query.name = name;
             }
-            collection.count(query, function(err, total) {
-                collection.find(query, {
-                    skip : (page - 1) * 10,
-                    limit : 10
-                }).sort({time : -1}).toArray(function(err, docs) {
-                    db.close();
-                    if(err) {
-                        return callback(err);
-                    }
-                    docs.forEach(function(doc) {
-                        doc.post = markdown.toHTML(doc.post);
-                    });
-                    callback(null, docs, total);
-                });
+            db.collection('posts').count(query, function(err, total) {
+                cb(err, db, query, total);
             });
-        });
+        },
+        function(db, query, total, cb) {
+           db.collection('posts').find(query, {
+                skip : (page - 1) * 10,
+                limit : 10
+            }).sort({time : -1}).toArray(function(err, docs) {
+               db.close();
+               docs.forEach(function(doc) {
+               doc.post = markdown.toHTML(doc.post);
+            });
+               cb(err, docs, total);
+           });
+        }
+    ], function(err, docs, total) {
+        if(err) {
+            return callback(err);
+        }
+        callback(null, docs, total);
+    });
+
+    //mongodb.connect(settings.url, function(err, db) {
+    //    if(err) {
+    //       return callback(err);
+    //    }
+    //    var collection = db.collection('posts');
+    //        var query = {};
+    //        if(name) {
+    //            query.name = name;
+    //        }
+    //        collection.count(query, function(err, total) {
+    //            collection.find(query, {
+    //                skip : (page - 1) * 10,
+    //                limit : 10
+    //            }).sort({time : -1}).toArray(function(err, docs) {
+    //                db.close();
+    //                if(err) {
+    //                    return callback(err);
+    //                }
+    //                docs.forEach(function(doc) {
+    //                    doc.post = markdown.toHTML(doc.post);
+    //                });
+    //                callback(null, docs, total);
+    //            });
+    //        });
+    //    });
 }
 
 Post.getOne = function(_id, callback) {
