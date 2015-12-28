@@ -1,6 +1,7 @@
 ## N-Blog-Learnning
 将master的mongodb服务器放在远端
-
+最终我的部署
+https://superccblog.herokuapp.com
 
 
 这个联系项目起源于https://github.com/nswbmw/N-blog
